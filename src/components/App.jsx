@@ -1,66 +1,51 @@
-import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import Navigation from './Navigation/Navigation';
-import LoginForm from './LoginForm/LoginForm';
-import RegisterForm from './RegisterForm/RegisterForm';
-import UserMenu from './UserMenu/UserMenu';
-import ContactForm from './ContactForm/ContactForm'; 
-import ContactList from './ContactList/ContactList';
-import axios from 'axios';
-import './ContactForm/ContactForm.css';
-import './ContactList/ContactList.css';
-import './Filter/Filter.css';
+import { useEffect, lazy } from 'react';
+import { useDispatch } from 'react-redux';
+import { Route, Routes } from 'react-router-dom';
+import { Layout } from './Layout';
+import { PrivateRoute } from './PrivateRoute';
+import { RestrictedRoute } from './RestrictedRoute';
+import { refreshUser } from './redux/operations';
+import { useAuth } from 'components/hooks/hooks';
 
-const App = () => {
-  const [currentUser, setCurrentUser] = useState(null);
+const HomePage = lazy(() => import('./pages/Home'));
+const RegisterPage = lazy(() => import('./pages/Register'));
+const LoginPage = lazy(() => import('./pages/Login'));
+const ContactsPage = lazy(() => import('./pages/Contacts'));
 
-  const handleLogin = (userData) => {
-    setCurrentUser(userData);
-  };
-
-  const handleRegister = (userData) => {
-    setCurrentUser(userData);
-  };
-
-  const handleLogout = () => {
-    setCurrentUser(null);
-  };
-
-  const getUserInfo = async () => {
-    try {
-      const response = await axios.get('https://connections-api.herokuapp.com/users/current');
-      setCurrentUser(response.data);
-    } catch (error) {
-      console.error('Error fetching current user:', error);
-    }
-  };
+export const App = () => {
+  const dispatch = useDispatch();
+  const { isRefreshing } = useAuth();
 
   useEffect(() => {
-    getUserInfo();
-  }, []);
+    dispatch(refreshUser());
+  }, [dispatch]);
 
-  return (
-    <Router>
-      <div className="app">
-        <Navigation />
-        {currentUser ? (
-          <UserMenu userEmail={currentUser?.email} handleLogout={handleLogout} />
-        ) : (
-          <Routes>
-            <Route path="/login" element={<LoginForm handleLogin={handleLogin} />} />
-            <Route path="/register" element={<RegisterForm handleRegister={handleRegister} />} />
-            <Route path="/*" element={<Navigate to="/login" />} />
-          </Routes>
-        )}
-        {currentUser && (
-          <Routes>
-            <Route path="/contacts" element={<ContactList />} />
-            <Route path="/add-contact" element={<ContactForm />} />
-            <Route path="/*" element={<Navigate to="/contacts" />} />
-          </Routes>
-        )}
-      </div>
-    </Router>
+  return isRefreshing ? (
+    <b>Refreshing user...</b>
+  ) : (
+    <Routes>
+      <Route path="/" element={<Layout />}>
+        <Route index element={<HomePage />} />
+        <Route
+          path="/register"
+          element={
+            <RestrictedRoute redirectTo="/contacts" component={<RegisterPage />} />
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <RestrictedRoute redirectTo="/contacts" component={<LoginPage />} />
+          }
+        />
+        <Route
+          path="/contacts"
+          element={
+            <PrivateRoute redirectTo="/login" component={<ContactsPage />} />
+          }
+        />
+      </Route>
+    </Routes>
   );
 };
 

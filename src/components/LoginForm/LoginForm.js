@@ -1,39 +1,32 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { logIn } from '../redux/operations';
 
-const LoginForm = ({ handleLogin }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState(null);
+export const LoginForm = () => {
+  const dispatch = useDispatch();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    try {
-      const response = await axios.post('https://connections-api.herokuapp.com/users/login', { email, password });
-      handleLogin(response.data);
-    } catch (error) {
-      setError(error.response.data.message);
-    }
+  const handleSubmit = e => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    dispatch(
+      logIn({
+        email: form.elements.email.value,
+        password: form.elements.password.value,
+      })
+    );
+    form.reset();
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
-      />
-      <button type="submit">Login</button>
-      {error && <p>{error}</p>}
+    <form className="css.form" onSubmit={handleSubmit} autoComplete="off">
+      <label className="css.label">
+        Email
+        <input type="email" name="email" />
+      </label>
+      <label className="css.label">
+        Password
+        <input type="password" name="password" />
+      </label>
+      <button type="submit">Log In</button>
     </form>
   );
 };

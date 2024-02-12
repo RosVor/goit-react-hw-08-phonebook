@@ -1,6 +1,7 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
+import { BrowserRouter } from 'react-router-dom';
 import store from './components/redux/store'; 
 import App from './components/App'; 
 import ErrorBoundary from 'components/redux/ErrorBoundary';
@@ -10,10 +11,12 @@ const root = createRoot(document.getElementById('root'));
 
 root.render(
   <React.StrictMode>
-    <Provider store={store}>
+  <Provider store={store}>
+      <BrowserRouter>
         <ErrorBoundary>
           <App />
         </ErrorBoundary>
-    </Provider>
-  </React.StrictMode>,
+      </BrowserRouter>
+  </Provider>
+</React.StrictMode>,
 );

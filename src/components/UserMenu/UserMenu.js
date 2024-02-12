@@ -1,20 +1,17 @@
-import React from 'react';
-import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { logOut } from '../redux/operations';
+import { useAuth } from 'components/hooks/hooks';
 
-const UserMenu = ({ userEmail, handleLogout }) => {
-  const handleLogoutClick = async () => {
-    try {
-      await axios.post('https://connections-api.herokuapp.com/users/logout');
-      handleLogout();
-    } catch (error) {
-      console.error('Error during logout:', error);
-    }
-  };
+export const UserMenu = () => {
+  const dispatch = useDispatch();
+  const { user } = useAuth();
 
   return (
-    <div>
-      <p>{userEmail}</p>
-      <button onClick={handleLogoutClick}>Logout</button>
+    <div className="css.wrapper">
+      <p className="css.username">Welcome, {user.name}</p>
+      <button type="button" onClick={() => dispatch(logOut())}>
+        Logout
+      </button>
     </div>
   );
 };
