@@ -12,10 +12,6 @@ const ContactForm = () => {
   const handleSubmit = (event) => {
     event.preventDefault();
 
-    if (!contacts || !Array.isArray(contacts)) {
-      console.error('Некоректні дані контактів');
-      return;
-    }
 
     const existingContact = contacts.find(
       (contact) => contact.name.toLowerCase() === name.toLowerCase() || contact.number === number
