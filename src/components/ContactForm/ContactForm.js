@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addContact } from '../redux/contactsSlice';
 import { getContacts } from '../redux/selectors';
+import "./ContactForm.css"
 
 const ContactForm = () => {
   const dispatch = useDispatch();

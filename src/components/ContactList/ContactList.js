@@ -1,34 +1,26 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchContacts, deleteContact } from '../redux/contactsSlice';
-
+import { deleteContact } from '../redux/contactsSlice';
+import { getContacts, getFilter } from '../redux/selectors';
+import "./ContactList.css"
 const ContactList = () => {
   const dispatch = useDispatch();
-  const contacts = useSelector((state) => state.contacts.items);
-  const status = useSelector((state) => state.contacts.status);
-  const error = useSelector((state) => state.contacts.error);
+  const contact = useSelector(getContacts);
+  const filter = useSelector(getFilter);
 
-  useEffect(() => {
-    if (status === 'idle') {
-      dispatch(fetchContacts());
-    }
-  }, [status, dispatch]);
-
+  const filteredContacts = contact.filter(
+    (contact) =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
+  
   const handleDeleteContact = (contactId) => {
     dispatch(deleteContact(contactId));
   };
 
-  if (status === 'loading') {
-    return <div>Loading...</div>;
-  }
-
-  if (status === 'failed') {
-    return <div>Error: {error}</div>;
-  }
 
   return (
     <ul className='contact-list'>
-      {contacts.map((contact) => (
+      {filteredContacts.map((contact) => (
         <li className='contact-item' key={contact.id}>
           {contact.name}: {contact.number}
           <button className="button-delete" type="button" onClick={() => handleDeleteContact(contact.id)}>
